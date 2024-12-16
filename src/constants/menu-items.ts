@@ -1,29 +1,24 @@
-import { Users, FileText, Settings, Building, MessageSquare, Clock } from 'lucide-react';
+import { Users, ClipboardList, Shield, FileText, MessageSquare, Clock } from 'lucide-react';
+import { ROUTES } from './routes';
 
 export const INTERNAL_MENU_ITEMS = [
   {
     title: 'Client Management',
     description: 'Manage client accounts and services',
     icon: Users,
-    to: '/internal/clients'
+    to: ROUTES.INTERNAL.CLIENTS
   },
   {
-    title: 'Documents',
-    description: 'Access and manage documentation',
-    icon: FileText,
-    to: '/internal/documents'
+    title: 'Client Routine Inputs',
+    description: 'Manage routine data for clients',
+    icon: ClipboardList,
+    to: ROUTES.INTERNAL.ROUTINE_INPUTS
   },
   {
-    title: 'Operations',
-    description: 'View and manage operations',
-    icon: Building,
-    to: '/internal/operations'
-  },
-  {
-    title: 'Settings',
-    description: 'Configure system settings',
-    icon: Settings,
-    to: '/internal/settings'
+    title: 'System Administrator',
+    description: 'Administer system settings and roles',
+    icon: Shield,
+    to: ROUTES.INTERNAL.ADMIN
   }
 ];
 
@@ -32,18 +27,18 @@ export const CLIENT_MENU_ITEMS = [
     title: 'My Documents',
     description: 'Access your documents and files',
     icon: FileText,
-    to: '/client/documents'
+    to: ROUTES.CLIENT.DOCUMENTS
   },
   {
     title: 'Support',
     description: 'Get help and support',
     icon: MessageSquare,
-    to: '/client/support'
+    to: ROUTES.CLIENT.SUPPORT
   },
   {
     title: 'Activity',
     description: 'View recent activities',
     icon: Clock,
-    to: '/client/activity'
+    to: ROUTES.CLIENT.ACTIVITY
   }
 ];
