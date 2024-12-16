@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import duruLogo from '/duru_logo.png';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -11,7 +12,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title }) => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex flex-col items-center">
           <img
-            src="/duru_logo.png"
+            src={duruLogo}
             alt="DOPZ"
             className="h-12 w-auto"
           />

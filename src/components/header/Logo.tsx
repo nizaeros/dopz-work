@@ -1,4 +1,5 @@
 import React from 'react';
+import duruLogo from '/duru_logo.png';
 
 interface LogoProps {
   className?: string;
@@ -8,7 +9,7 @@ export const Logo: React.FC<LogoProps> = ({ className = '' }) => {
   return (
     <div className={`flex items-center ${className}`}>
       <img
-        src="/duru_logo.png"
+        src={duruLogo}
         alt="DOPZ"
         className="h-8 w-auto mr-3"
       />
