@@ -1,5 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { config } from '../../config/environment';
+import { ROUTES } from '../../constants/routes';
 
 interface LogoProps {
   className?: string;
@@ -7,8 +9,20 @@ interface LogoProps {
 }
 
 export const Logo: React.FC<LogoProps> = ({ className = '', iconOnly = false }) => {
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    navigate(ROUTES.INTERNAL.DASHBOARD);
+  };
+
   return (
-    <div className={`flex items-center ${className}`}>
+    <div 
+      className={`flex items-center cursor-pointer ${className}`}
+      onClick={handleLogoClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && handleLogoClick()}
+    >
       <img
         src={config.logoUrl}
         alt="DOPZ"

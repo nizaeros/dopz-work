@@ -6,6 +6,7 @@ import { ClientDashboard } from './pages/ClientDashboard';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { ClientManagementPage } from './pages/clients/ClientManagementPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { ROUTES } from './constants/routes';
 
 export default function App() {
@@ -40,6 +41,9 @@ export default function App() {
             </>
           }
         />
+
+        {/* 404 Route */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

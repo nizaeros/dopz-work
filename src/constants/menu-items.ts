@@ -7,7 +7,7 @@ export const INTERNAL_MENU_ITEMS: MenuItem[] = [
     title: 'Client Management',
     description: 'Manage client accounts and services',
     icon: Users,
-    to: ROUTES.INTERNAL.CLIENTS
+    to: `${ROUTES.INTERNAL.CLIENTS}/list`
   },
   {
     title: 'Client Routine Inputs',
