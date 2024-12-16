@@ -4,11 +4,11 @@ import { Logo } from './Logo';
 import { UserMenu } from './UserMenu';
 import { useUser } from '../../hooks/useUser';
 
-interface HeaderProps {
+interface DashboardHeaderProps {
   clientName?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ clientName }) => {
+export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ clientName }) => {
   const location = useLocation();
   const { user, loading } = useUser();
   const isInternalDashboard = location.pathname.includes('/internal');

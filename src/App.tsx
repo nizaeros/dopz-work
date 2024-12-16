@@ -11,9 +11,12 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Auth Routes */}
         <Route path="/" element={<Navigate to={ROUTES.LOGIN} replace />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+
+        {/* Dashboard Routes */}
         <Route
           path="/internal/*"
           element={

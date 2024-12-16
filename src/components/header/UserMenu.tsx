@@ -41,6 +41,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-3 focus:outline-none"
+        aria-label="User menu"
+        aria-expanded={isOpen}
       >
         <div className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
           {user.profile_image_url ? (

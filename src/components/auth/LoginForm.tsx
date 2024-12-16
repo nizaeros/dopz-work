@@ -14,10 +14,6 @@ export const LoginForm: React.FC = () => {
     email: '',
     password: '',
   });
-  const [touched, setTouched] = useState({
-    email: false,
-    password: false,
-  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,41 +23,14 @@ export const LoginForm: React.FC = () => {
     }));
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-    setTouched((prev) => ({
-      ...prev,
-      [name]: true,
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched({ email: true, password: true });
-
     try {
       await login(credentials);
     } catch (err) {
       // Error is handled by useAuth hook
     }
   };
-
-  const getEmailError = () => {
-    if (!touched.email) return '';
-    if (!credentials.email) return 'Email is required';
-    if (!/\S+@\S+\.\S+/.test(credentials.email)) return 'Invalid email format';
-    return '';
-  };
-
-  const getPasswordError = () => {
-    if (!touched.password) return '';
-    if (!credentials.password) return 'Password is required';
-    if (credentials.password.length < 6) return 'Password must be at least 6 characters';
-    return '';
-  };
-
-  const emailError = getEmailError();
-  const passwordError = getPasswordError();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -75,8 +44,6 @@ export const LoginForm: React.FC = () => {
         required
         value={credentials.email}
         onChange={handleChange}
-        onBlur={handleBlur}
-        error={emailError}
         autoComplete="email"
       />
 
@@ -90,8 +57,6 @@ export const LoginForm: React.FC = () => {
         required
         value={credentials.password}
         onChange={handleChange}
-        onBlur={handleBlur}
-        error={passwordError}
         autoComplete="current-password"
       />
 
@@ -116,7 +81,6 @@ export const LoginForm: React.FC = () => {
         type="submit"
         loading={loading}
         className="w-full"
-        disabled={!!emailError || !!passwordError}
       >
         Sign In
       </Button>
