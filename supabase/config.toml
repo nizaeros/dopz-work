@@ -1,0 +1,25 @@
+[auth]
+site_url = "https://test.dopz.work"
+additional_redirect_urls = ["https://test.dopz.work/*", "http://localhost:5173/*"]
+jwt_expiry = 3600
+enable_signup = false
+
+[auth.email]
+enable_signup = false
+double_confirm_changes = true
+enable_confirmations = true
+
+[auth.external.github]
+enabled = false
+
+[auth.external.google]
+enabled = false
+
+[auth.external.azure]
+enabled = false
+
+[storage]
+file_size_limit = "50MiB"
+
+[api]
+enabled_apis = ["rest", "graphql", "realtime"]
