@@ -4,6 +4,8 @@ export const ROUTES = {
   INTERNAL: {
     DASHBOARD: '/internal/dashboard',
     CLIENTS: '/internal/clients',
+    CLIENTS_ANALYTICS: '/internal/clients/analytics',
+    CLIENTS_SETTINGS: '/internal/clients/settings',
     ROUTINE_INPUTS: '/internal/routine-inputs',
     ADMIN: '/internal/admin'
   },

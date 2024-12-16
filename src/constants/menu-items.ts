@@ -1,7 +1,8 @@
-import { Users, ClipboardList, Shield, FileText, MessageSquare, Clock } from 'lucide-react';
+import { Users, ClipboardList, Shield } from 'lucide-react';
+import { MenuItem } from '../types/menu';
 import { ROUTES } from './routes';
 
-export const INTERNAL_MENU_ITEMS = [
+export const INTERNAL_MENU_ITEMS: MenuItem[] = [
   {
     title: 'Client Management',
     description: 'Manage client accounts and services',
@@ -22,23 +23,20 @@ export const INTERNAL_MENU_ITEMS = [
   }
 ];
 
-export const CLIENT_MENU_ITEMS = [
+export const CLIENT_MANAGEMENT_MENU: MenuItem[] = [
   {
-    title: 'My Documents',
-    description: 'Access your documents and files',
-    icon: FileText,
-    to: ROUTES.CLIENT.DOCUMENTS
+    title: 'Overview',
+    icon: Users,
+    to: ROUTES.INTERNAL.CLIENTS
   },
   {
-    title: 'Support',
-    description: 'Get help and support',
-    icon: MessageSquare,
-    to: ROUTES.CLIENT.SUPPORT
+    title: 'Analytics',
+    icon: ClipboardList,
+    to: '/internal/clients/analytics'
   },
   {
-    title: 'Activity',
-    description: 'View recent activities',
-    icon: Clock,
-    to: ROUTES.CLIENT.ACTIVITY
+    title: 'Settings',
+    icon: Shield,
+    to: '/internal/clients/settings'
   }
 ];
