@@ -26,7 +26,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     >
       <div className="h-14 flex items-center justify-between px-4 border-b border-gray-200">
         <div className={`transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
-          <Logo iconOnly />
+          <div className="flex items-center space-x-2">
+            <Logo iconOnly />
+            <span className="font-bold text-gray-800">DOPZ</span>
+          </div>
         </div>
         <button
           onClick={onToggle}
@@ -44,17 +47,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <nav className="p-4 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = currentPath === item.to;
+          const isActive = currentPath.includes(item.to);
           
           const linkContent = (
             <div
               className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
                 isActive
-                  ? 'bg-primary text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-gray-100 text-primary font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
-              <Icon className="h-5 w-5 flex-shrink-0" />
+              <Icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-primary' : 'text-gray-400'}`} />
               {isExpanded && <span>{item.title}</span>}
             </div>
           );

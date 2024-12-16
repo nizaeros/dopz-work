@@ -1,4 +1,4 @@
-import { Users, ClipboardList, Shield } from 'lucide-react';
+import { Users, LayoutDashboard } from 'lucide-react';
 import { MenuItem } from '../types/menu';
 import { ROUTES } from './routes';
 
@@ -12,13 +12,13 @@ export const INTERNAL_MENU_ITEMS: MenuItem[] = [
   {
     title: 'Client Routine Inputs',
     description: 'Manage routine data for clients',
-    icon: ClipboardList,
+    icon: LayoutDashboard,
     to: ROUTES.INTERNAL.ROUTINE_INPUTS
   },
   {
     title: 'System Administrator',
     description: 'Administer system settings and roles',
-    icon: Shield,
+    icon: Users,
     to: ROUTES.INTERNAL.ADMIN
   }
 ];
@@ -26,17 +26,12 @@ export const INTERNAL_MENU_ITEMS: MenuItem[] = [
 export const CLIENT_MANAGEMENT_MENU: MenuItem[] = [
   {
     title: 'Overview',
+    icon: LayoutDashboard,
+    to: '/internal/clients/overview'
+  },
+  {
+    title: 'Clients',
     icon: Users,
-    to: ROUTES.INTERNAL.CLIENTS
-  },
-  {
-    title: 'Analytics',
-    icon: ClipboardList,
-    to: '/internal/clients/analytics'
-  },
-  {
-    title: 'Settings',
-    icon: Shield,
-    to: '/internal/clients/settings'
+    to: '/internal/clients/list'
   }
 ];
