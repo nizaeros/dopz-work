@@ -11,13 +11,13 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title }) => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex flex-col items-center">
           <img
-            src="/rocket_1f680.gif"
+            src="/duru_logo.png"
             alt="DOPZ"
-            className="h-12 w-12"
+            className="h-12 w-auto"
           />
           <div className="flex items-center mt-4">
             <span className="text-xl font-bold text-gray-800">DOPZ</span>
-            <span className="text-gray-500 mx-2">|</span>
+            <span className="text-gray-400 mx-2">|</span>
             <span className="text-gray-500">Duru Operations Hub</span>
           </div>
         </div>
