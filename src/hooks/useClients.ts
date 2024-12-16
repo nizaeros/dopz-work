@@ -12,10 +12,14 @@ export const useClients = (filter: ClientFilter = 'all') => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const data = await clientService.getClients();
         setClients(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch clients');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch clients';
+        console.error('Error fetching clients:', errorMessage);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -25,6 +29,8 @@ export const useClients = (filter: ClientFilter = 'all') => {
   }, []);
 
   const filteredClients = useMemo(() => {
+    if (!clients.length) return [];
+    
     switch (filter) {
       case 'active':
         return clients.filter(client => client.isActive);

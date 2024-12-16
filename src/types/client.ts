@@ -6,4 +6,10 @@ export interface Client {
   industry: string;
   createdAt: string;
   isActive: boolean;
+  logoUrl?: string;
+  parentAccounts?: string[];
+  gstin?: string;
+  city?: string;
+  state?: string;
+  country?: string;
 }
