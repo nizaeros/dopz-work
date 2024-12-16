@@ -8,10 +8,7 @@ import { NotFoundPage } from '../NotFoundPage';
 
 export const ClientManagementPage: React.FC = () => {
   return (
-    <GeneralAppLayout
-      title="Client Management"
-      menuItems={CLIENT_MANAGEMENT_MENU}
-    >
+    <GeneralAppLayout menuItems={CLIENT_MANAGEMENT_MENU}>
       <Routes>
         <Route index element={<Navigate to="list" replace />} />
         <Route path="overview" element={<ClientOverview />} />

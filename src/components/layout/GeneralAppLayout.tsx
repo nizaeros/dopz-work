@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
-import { PageHeader } from './PageHeader';
+import { UserMenu } from '../header/UserMenu';
+import { useUser } from '../../hooks/useUser';
 import type { MenuItem } from '../../types/menu';
 
 interface GeneralAppLayoutProps {
   children: React.ReactNode;
-  title: string;
   menuItems: MenuItem[];
 }
 
 export const GeneralAppLayout: React.FC<GeneralAppLayoutProps> = ({
   children,
-  title,
   menuItems,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const location = useLocation();
+  const { user, loading } = useUser();
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -28,7 +28,11 @@ export const GeneralAppLayout: React.FC<GeneralAppLayoutProps> = ({
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <PageHeader title={title} />
+        <header className="bg-white border-b border-gray-200 h-14">
+          <div className="h-full px-6 flex items-center justify-end">
+            {!loading && user && <UserMenu user={user} />}
+          </div>
+        </header>
         
         <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
           <div className="max-w-7xl mx-auto">
