@@ -1,37 +1,34 @@
-# This is the Supabase configuration file
-
+# A string used to distinguish different Supabase projects on the same host. Defaults to the working
+# directory name when running `supabase init`.
 project_id = "tlqdmgudwsfavjslpplh"
 
 [auth]
+# The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
+# in emails.
 site_url = "https://test.dopz.work"
+# A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
 additional_redirect_urls = ["https://test.dopz.work/*", "http://localhost:5173/*"]
+# How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
+# Allow/disallow new user signups to your project.
 enable_signup = false
 
 [auth.email]
+# Allow/disallow new user signups via email to your project.
 enable_signup = false
+# If enabled, a user will be required to confirm any email change on both the old, and new email
+# addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
+# If enabled, users need to confirm their email address before signing in.
 enable_confirmations = true
 
-[auth.external.github]
-enabled = false
-
-[auth.external.google]
-enabled = false
-
-[auth.external.azure]
-enabled = false
-
 [storage]
+# The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
-[api]
-enabled_apis = ["rest", "graphql", "realtime"]
-
-[api.cors]
+# Configure one of the supported storage providers: file (local filesystem), s3 (Amazon S3), gcs (Google Cloud Storage), azure (Azure Blob Storage)
+[storage.file]
 enabled = true
-allowed_origins = ["*"]
-allowed_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-allowed_headers = ["*"]
-exposed_headers = ["Content-Range", "Range"]
-max_age = 3600
+
+[realtime]
+enabled = true
