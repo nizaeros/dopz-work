@@ -5,6 +5,7 @@ const envSchema = z.object({
   VITE_SUPABASE_ANON_KEY: z.string().min(1),
   VITE_APP_ENV: z.enum(['development', 'production', 'test']).default('development'),
   VITE_LOGO_URL: z.string().url().optional().default('/duru_logo.png'),
+  VITE_LOCATION_API_KEY: z.string().min(1)
 });
 
 const validateEnv = () => {
@@ -13,6 +14,7 @@ const validateEnv = () => {
     VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
     VITE_APP_ENV: import.meta.env.VITE_APP_ENV,
     VITE_LOGO_URL: import.meta.env.VITE_LOGO_URL || '/duru_logo.png',
+    VITE_LOCATION_API_KEY: import.meta.env.VITE_LOCATION_API_KEY
   };
 
   try {
@@ -35,4 +37,5 @@ export const config = {
   isDevelopment: env.VITE_APP_ENV === 'development',
   isTest: env.VITE_APP_ENV === 'test',
   logoUrl: env.VITE_LOGO_URL,
+  locationApiKey: env.VITE_LOCATION_API_KEY
 } as const;

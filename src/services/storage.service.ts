@@ -1,28 +1,33 @@
 import { supabase } from '../lib/supabase';
 
 export const storageService = {
-  async uploadLogo(file: File) {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `logo.${fileExt}`;
-    const filePath = `public/${fileName}`;
+  async uploadLogo(file: File): Promise<string> {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `public/${fileName}`;
 
-    const { data, error } = await supabase.storage
-      .from('assets')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true
-      });
+      const { error: uploadError } = await supabase.storage
+        .from('assets')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-    if (error) throw error;
+      if (uploadError) throw uploadError;
 
-    const { data: publicUrl } = supabase.storage
-      .from('assets')
-      .getPublicUrl(filePath);
+      const { data } = supabase.storage
+        .from('assets')
+        .getPublicUrl(filePath);
 
-    return publicUrl.publicUrl;
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      throw error;
+    }
   },
 
-  async getPublicUrl(path: string) {
+  async getPublicUrl(path: string): Promise<string> {
     const { data } = supabase.storage
       .from('assets')
       .getPublicUrl(path);

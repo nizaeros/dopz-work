@@ -16,13 +16,23 @@ export const useAuth = () => {
     try {
       const { roleType, userDetails } = await authService.login(credentials);
 
+      if (!roleType || !userDetails) {
+        throw new Error('Invalid user data received');
+      }
+
+      // Check role_type_name for navigation
       if (roleType === 'internal') {
         navigate(ROUTES.INTERNAL.DASHBOARD);
-      } else {
+      } else if (roleType === 'external' && userDetails.client_id) {
         navigate(ROUTES.CLIENT.DASHBOARD.replace(':clientId', userDetails.client_id));
+      } else {
+        throw new Error('Invalid user role configuration');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during login');
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : 'An error occurred during login. Please try again.';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -36,7 +46,10 @@ export const useAuth = () => {
     try {
       await authService.forgotPassword(email);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : 'Failed to process password reset. Please try again.';
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
