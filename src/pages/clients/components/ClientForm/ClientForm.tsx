@@ -7,6 +7,7 @@ import { RegistrationDetails } from './sections/RegistrationDetails';
 import { OnlinePresence } from './sections/OnlinePresence';
 import { ParentAccounts } from './sections/ParentAccounts';
 import { CompanyLogo } from './sections/CompanyLogo';
+import { LocationInformation } from './sections/LocationInformation';
 import { useIndustries } from './hooks/useIndustries';
 import { useParentAccounts } from './hooks/useParentAccounts';
 import { clientFormSchema } from '../../../../types/forms';
@@ -48,6 +49,13 @@ export const ClientForm: React.FC<ClientFormProps> = ({
       <RegistrationDetails
         register={register}
         errors={errors}
+      />
+
+      <LocationInformation
+        register={register}
+        errors={errors}
+        watch={watch}
+        setValue={setValue}
       />
 
       <OnlinePresence

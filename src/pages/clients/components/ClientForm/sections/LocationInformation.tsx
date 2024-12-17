@@ -1,80 +1,67 @@
 import React from 'react';
-import { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form';
-import { LoadingSpinner } from '../../../../../components/ui/LoadingSpinner';
+import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'react-hook-form';
 import { LocationSelect } from '../../../../../components/ui/LocationSelect';
-import type { ClientFormData, LocationOption } from '../../../../../types/forms';
+import { useLocations } from '../hooks/useLocations';
+import type { ClientFormData } from '../../../../../types/forms';
 
 interface LocationInformationProps {
   register: UseFormRegister<ClientFormData>;
-  errors: FieldErrors<ClientFormData>;
   watch: UseFormWatch<ClientFormData>;
   setValue: UseFormSetValue<ClientFormData>;
-  countries: LocationOption[];
-  states: LocationOption[];
-  cities: LocationOption[];
-  loading?: boolean;
+  errors: FieldErrors<ClientFormData>;
 }
 
 export const LocationInformation: React.FC<LocationInformationProps> = ({
   register,
-  errors,
   watch,
   setValue,
-  countries,
-  states,
-  cities,
-  loading = false,
+  errors
 }) => {
-  const selectedCountry = watch('country_id');
-  const selectedState = watch('state_id');
+  const { countries, states, cities, loading } = useLocations(watch);
 
-  // Reset dependent fields when parent field changes
+  // Clear dependent fields when parent selection changes
   React.useEffect(() => {
-    if (!selectedCountry) {
-      setValue('state_id', null);
-      setValue('city_id', null);
+    if (!watch('country_id')) {
+      setValue('state_id', '');
+      setValue('city_id', '');
     }
-  }, [selectedCountry, setValue]);
+  }, [watch('country_id'), setValue]);
 
   React.useEffect(() => {
-    if (!selectedState) {
-      setValue('city_id', null);
+    if (!watch('state_id')) {
+      setValue('city_id', '');
     }
-  }, [selectedState, setValue]);
+  }, [watch('state_id'), setValue]);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-gray-900">Location</h3>
-        {loading && <LoadingSpinner size="small" />}
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <h3 className="text-lg font-medium text-gray-900">Location Information</h3>
+      <div className="grid grid-cols-1 gap-6">
         <LocationSelect
           label="Country"
-          value={selectedCountry}
+          name="country_id"
+          register={register}
           options={countries}
-          onChange={(value) => setValue('country_id', value)}
+          error={errors.country_id?.message}
           disabled={loading}
-          optional
         />
 
         <LocationSelect
           label="State"
-          value={selectedState}
+          name="state_id"
+          register={register}
           options={states}
-          onChange={(value) => setValue('state_id', value)}
-          disabled={!selectedCountry || loading}
-          optional
+          error={errors.state_id?.message}
+          disabled={!watch('country_id') || loading}
         />
 
         <LocationSelect
           label="City"
-          value={watch('city_id')}
+          name="city_id"
+          register={register}
           options={cities}
-          onChange={(value) => setValue('city_id', value)}
-          disabled={!selectedState || loading}
-          optional
+          error={errors.city_id?.message}
+          disabled={!watch('state_id') || loading}
         />
       </div>
     </div>

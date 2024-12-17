@@ -1,5 +1,4 @@
 import { config } from '../../config/environment';
-import type { ApiCountry, ApiState, ApiCity } from './types';
 
 const API_URL = 'https://api.countrystatecity.in/v1';
 const API_KEY = config.locationApiKey;
@@ -13,7 +12,8 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+      const error = await response.text();
+      throw new Error(`API request failed: ${error}`);
     }
 
     return await response.json();
@@ -24,15 +24,42 @@ async function fetchFromApi<T>(endpoint: string): Promise<T> {
 }
 
 export const locationApi = {
-  async getCountries(): Promise<ApiCountry[]> {
-    return fetchFromApi<ApiCountry[]>('/countries');
-  },
+  async searchCities(query: string) {
+    try {
+      // Get all Indian states first (limiting to India for now)
+      const states = await fetchFromApi<any[]>('/countries/IN/states');
+      const results = [];
 
-  async getStates(countryCode: string): Promise<ApiState[]> {
-    return fetchFromApi<ApiState[]>(`/countries/${countryCode}/states`);
-  },
+      // For each state, get its cities
+      for (const state of states) {
+        const cities = await fetchFromApi<any[]>(
+          `/countries/IN/states/${state.iso2}/cities`
+        );
 
-  async getCities(countryCode: string, stateCode: string): Promise<ApiCity[]> {
-    return fetchFromApi<ApiCity[]>(`/countries/${countryCode}/states/${stateCode}/cities`);
+        const matchedCities = cities.filter(city => 
+          city.name.toLowerCase().includes(query.toLowerCase())
+        );
+
+        results.push(...matchedCities.map(city => ({
+          id: city.id,
+          name: city.name,
+          state: {
+            id: state.id,
+            name: state.name,
+            country: {
+              id: 'IN',
+              name: 'India'
+            }
+          }
+        })));
+
+        if (results.length >= 10) break; // Limit to 10 results
+      }
+
+      return results;
+    } catch (error) {
+      console.error('Error searching cities:', error);
+      throw error;
+    }
   }
 };

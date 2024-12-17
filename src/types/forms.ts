@@ -14,9 +14,18 @@ export const clientFormSchema = z.object({
   website_url: z.string().url().optional().or(z.literal('')),
   parent_account_ids: z.array(z.string().uuid('Invalid parent account ID')),
   logo_file: z.instanceof(File).optional(),
+  // Make location fields optional
+  city_id: z.string().uuid('Invalid city ID').optional().nullable(),
+  state_id: z.string().uuid('Invalid state ID').optional().nullable(),
+  country_id: z.string().uuid('Invalid country ID').optional().nullable(),
 });
 
 export type ClientFormData = z.infer<typeof clientFormSchema>;
+
+export interface LocationOption {
+  id: string;
+  name: string;
+}
 
 export interface IndustryOption {
   id: string;

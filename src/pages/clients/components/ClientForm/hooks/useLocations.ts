@@ -1,25 +1,36 @@
-import { useState, useCallback, useEffect } from 'react';
-import { locationService } from '../../../../../services/location';
-import type { LocationOption } from '../../../../../types/forms';
+import { useState, useEffect } from 'react';
+import { UseFormWatch } from 'react-hook-form';
+import { supabase } from '../../../../../lib/supabase';
+import type { ClientFormData } from '../../../../../types/forms';
 
-export const useLocations = () => {
+interface LocationOption {
+  id: string;
+  name: string;
+}
+
+export function useLocations(watch: UseFormWatch<ClientFormData>) {
   const [countries, setCountries] = useState<LocationOption[]>([]);
   const [states, setStates] = useState<LocationOption[]>([]);
   const [cities, setCities] = useState<LocationOption[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch countries on mount
+  const countryId = watch('country_id');
+  const stateId = watch('state_id');
+
+  // Fetch countries
   useEffect(() => {
     const fetchCountries = async () => {
       try {
         setLoading(true);
-        setError(null);
-        const data = await locationService.getCountries();
-        setCountries(data);
-      } catch (err) {
-        setError('Failed to fetch countries');
-        console.error(err);
+        const { data, error } = await supabase
+          .from('countries')
+          .select('country_id, name')
+          .order('name');
+
+        if (error) throw error;
+        setCountries(data?.map(c => ({ id: c.country_id, name: c.name })) || []);
+      } catch (error) {
+        console.error('Error fetching countries:', error);
       } finally {
         setLoading(false);
       }
@@ -28,53 +39,61 @@ export const useLocations = () => {
     fetchCountries();
   }, []);
 
-  const handleCountryChange = useCallback(async (countryId: string | null) => {
-    if (!countryId) {
-      setStates([]);
-      setCities([]);
-      return;
-    }
+  // Fetch states when country changes
+  useEffect(() => {
+    const fetchStates = async () => {
+      if (!countryId) {
+        setStates([]);
+        return;
+      }
 
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await locationService.getStates(countryId);
-      setStates(data);
-      setCities([]);
-    } catch (err) {
-      setError('Failed to fetch states');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('states')
+          .select('state_id, name')
+          .eq('country_id', countryId)
+          .order('name');
 
-  const handleStateChange = useCallback(async (stateId: string | null) => {
-    if (!stateId) {
-      setCities([]);
-      return;
-    }
+        if (error) throw error;
+        setStates(data?.map(s => ({ id: s.state_id, name: s.name })) || []);
+      } catch (error) {
+        console.error('Error fetching states:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await locationService.getCities(stateId);
-      setCities(data);
-    } catch (err) {
-      setError('Failed to fetch cities');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    fetchStates();
+  }, [countryId]);
 
-  return {
-    countries,
-    states,
-    cities,
-    loading,
-    error,
-    handleCountryChange,
-    handleStateChange,
-  };
-};
+  // Fetch cities when state changes
+  useEffect(() => {
+    const fetchCities = async () => {
+      if (!stateId) {
+        setCities([]);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('cities')
+          .select('city_id, name')
+          .eq('state_id', stateId)
+          .order('name');
+
+        if (error) throw error;
+        setCities(data?.map(c => ({ id: c.city_id, name: c.name })) || []);
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCities();
+  }, [stateId]);
+
+  return { countries, states, cities, loading };
+}

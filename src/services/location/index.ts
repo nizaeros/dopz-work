@@ -1,69 +1,53 @@
-import { locationApi } from './api-client';
-import { fetchCountries, fetchStates, fetchCities } from './api';
-import { mapToLocationOption } from './mappers';
-import type { LocationOption } from '../../types/forms';
+import { supabase } from '../../lib/supabase';
+import type { LocationSearchResult } from './types';
 
 export const locationService = {
-  async getCountries(): Promise<LocationOption[]> {
+  async searchCities(query: string): Promise<LocationSearchResult[]> {
+    if (!query || query.length < 2) return [];
+
+    console.log('Starting city search:', query);
+
     try {
-      // Try to get from database first
-      const dbCountries = await fetchCountries();
-      
-      if (dbCountries.length > 0) {
-        return dbCountries.map(mapToLocationOption);
+      const { data, error } = await supabase
+        .from('cities')
+        .select(`
+          city_id,
+          name,
+          states!inner (
+            state_id,
+            name,
+            countries!inner (
+              country_id,
+              name
+            )
+          )
+        `)
+        .ilike('name', `%${query}%`)
+        .limit(10);
+
+      if (error) {
+        console.error('Database search error:', error);
+        throw error;
       }
 
-      // If no data in DB, fetch from API and store
-      const apiCountries = await locationApi.getCountries();
-      // Store in database and return mapped data
-      // Implementation in db-operations.ts
-      return apiCountries.map(country => ({
-        id: country.country_id,
-        name: country.name
-      }));
+      const results = data?.map(city => ({
+        id: city.city_id,
+        name: city.name,
+        state: {
+          id: city.states.state_id,
+          name: city.states.name,
+          country: {
+            id: city.states.countries.country_id,
+            name: city.states.countries.name
+          }
+        }
+      })) || [];
+
+      console.log('Search results:', results);
+      return results;
     } catch (error) {
-      console.error('Error in getCountries:', error);
-      return [];
-    }
-  },
-
-  async getStates(countryId: string | null): Promise<LocationOption[]> {
-    if (!countryId) return [];
-    
-    try {
-      // Try database first
-      const dbStates = await fetchStates(countryId);
-      
-      if (dbStates.length > 0) {
-        return dbStates.map(mapToLocationOption);
-      }
-
-      // If no data, fetch from API, store, and return
-      // Implementation in db-operations.ts
-      return [];
-    } catch (error) {
-      console.error('Error in getStates:', error);
-      return [];
-    }
-  },
-
-  async getCities(stateId: string | null): Promise<LocationOption[]> {
-    if (!stateId) return [];
-    
-    try {
-      // Try database first
-      const dbCities = await fetchCities(stateId);
-      
-      if (dbCities.length > 0) {
-        return dbCities.map(mapToLocationOption);
-      }
-
-      // If no data, fetch from API, store, and return
-      // Implementation in db-operations.ts
-      return [];
-    } catch (error) {
-      console.error('Error in getCities:', error);
-      return [];
+      console.error('Error searching cities:', error);
+      throw error;
     }
   }
 };
