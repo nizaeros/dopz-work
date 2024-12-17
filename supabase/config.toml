@@ -25,10 +25,3 @@ enable_confirmations = true
 [storage]
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
-
-# Configure one of the supported storage providers: file (local filesystem), s3 (Amazon S3), gcs (Google Cloud Storage), azure (Azure Blob Storage)
-[storage.file]
-enabled = true
-
-[realtime]
-enabled = true
