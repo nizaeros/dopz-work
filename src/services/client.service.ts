@@ -19,9 +19,9 @@ export const clientService = {
           logo_image_url,
           is_active,
           created_at,
-          country_id,
-          state_id,
-          city_id
+          city_name,
+          state_name,
+          country_name
         `)
         .order('created_at', { ascending: false });
 
@@ -48,6 +48,10 @@ export const clientService = {
       parentAccounts: data.parent_accounts ? data.parent_accounts.split('; ') : [],
       gstin: data.gstin || '',
       slug: data.slug || '',
+      city: data.city_name || '',
+      state: data.state_name || '',
+      country: data.country_name || '',
+      accountType: data.account_type || 'Standard',
     };
   }
 };

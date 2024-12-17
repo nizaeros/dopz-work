@@ -12,4 +12,5 @@ export interface Client {
   city?: string;
   state?: string;
   country?: string;
+  accountType: string;
 }
