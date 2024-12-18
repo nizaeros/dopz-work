@@ -1,24 +1,18 @@
 import React from 'react';
-import { Logo } from './Logo';
+import { UserMenu } from './UserMenu';
+import type { UserProfile } from '../../types/user';
 
 interface ClientHeaderProps {
-  clientName?: string;
-  clientLogo?: string;
+  user: UserProfile | null;
+  loading: boolean;
 }
 
-export const ClientHeader: React.FC<ClientHeaderProps> = ({ clientName, clientLogo }) => {
+export const ClientHeader: React.FC<ClientHeaderProps> = ({ user, loading }) => {
   return (
-    <div className="flex items-center space-x-2">
-      {clientLogo ? (
-        <img src={clientLogo} alt={clientName} className="h-8 w-auto" />
-      ) : (
-        <Logo />
-      )}
-      {clientName && (
-        <span className="text-lg font-semibold text-gray-800">
-          {clientName}
-        </span>
-      )}
-    </div>
+    <header className="bg-white border-b border-gray-200 h-14">
+      <div className="h-full px-6 flex items-center justify-end">
+        {!loading && user && <UserMenu user={user} />}
+      </div>
+    </header>
   );
 };

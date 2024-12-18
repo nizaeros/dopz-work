@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { clientService } from '../services/client.service';
+import { clientService } from '../services/client';
 import type { Client } from '../types/client';
 
 export type ClientFilter = 'active' | 'inactive' | 'all';

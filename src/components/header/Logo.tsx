@@ -6,9 +6,14 @@ import { ROUTES } from '../../constants/routes';
 interface LogoProps {
   className?: string;
   iconOnly?: boolean;
+  showCaption?: boolean;
 }
 
-export const Logo: React.FC<LogoProps> = ({ className = '', iconOnly = false }) => {
+export const Logo: React.FC<LogoProps> = ({ 
+  className = '', 
+  iconOnly = false,
+  showCaption = true
+}) => {
   const navigate = useNavigate();
 
   const handleLogoClick = () => {
@@ -26,14 +31,12 @@ export const Logo: React.FC<LogoProps> = ({ className = '', iconOnly = false }) 
       <img
         src={config.logoUrl}
         alt="DOPZ"
-        className="h-8 w-auto"
+        className={`${iconOnly ? 'h-6 w-6' : 'h-8 w-auto'}`}
       />
-      {!iconOnly && (
-        <div className="flex items-center whitespace-nowrap ml-3">
-          <span className="text-xl font-bold text-gray-800">DOPZ</span>
-          <span className="text-gray-400 mx-2">|</span>
-          <span className="text-gray-500">Duru Operations Hub</span>
-        </div>
+      {!iconOnly && showCaption && (
+        <span className="ml-3 text-lg font-semibold text-gray-800">
+          DOPZ
+        </span>
       )}
     </div>
   );

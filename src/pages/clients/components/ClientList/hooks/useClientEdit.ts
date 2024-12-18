@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { clientService } from '../../../../../services/client.service';
-import { fetchClientForEdit } from '../../../../../services/client/api';
+import { clientService } from '../../../../../services/client';
 import type { Client } from '../../../../../types/client';
 import type { ClientFormData } from '../../../../../types/forms';
 
@@ -20,7 +19,7 @@ export const useClientEdit = () => {
     setError(null);
 
     try {
-      const data = await fetchClientForEdit(client.id);
+      const data = await clientService.fetchClientForEdit(client.id);
       setClientFormData({
         friendly_name: data.friendly_name,
         registered_name: data.registered_name,

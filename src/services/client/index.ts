@@ -2,6 +2,14 @@ import { supabase } from '../../lib/supabase';
 import { storageService } from '../storage.service';
 import { mapClientData } from './map-client-data';
 import { handleSupabaseError } from '../../utils/error-handlers';
+import {
+  createClientRecord,
+  updateClientRecord,
+  updateClientLogo,
+  updateParentAssociations,
+  fetchUpdatedClient,
+  fetchClientForEdit
+} from './api';
 import type { Client } from '../../types/client';
 import type { ClientFormData } from '../../types/forms';
 
@@ -46,39 +54,13 @@ export const clientService = {
 
     try {
       // Create client record
-      const { data: client, error: clientError } = await supabase
-        .from('client_accounts')
-        .insert([{
-          friendly_name: formData.friendly_name,
-          registered_name: formData.registered_name,
-          account_type: formData.account_type,
-          industry_id: formData.industry_id,
-          entity_type: formData.entity_type,
-          gstin: formData.gstin,
-          tan: formData.tan,
-          icn: formData.icn,
-          linkedin_url: formData.linkedin_url,
-          website_url: formData.website_url,
-          country_id: formData.country_id,
-          state_id: formData.state_id,
-          city_id: formData.city_id,
-          created_by: session.session.user.id,
-          updated_by: session.session.user.id
-        }])
-        .select()
-        .single();
-
-      if (clientError) throw clientError;
-      if (!client) throw new Error('Failed to create client record');
+      const client = await createClientRecord(formData, session.session.user.id);
 
       // Handle logo upload if provided
       if (formData.logo_file) {
         try {
           const logoUrl = await storageService.uploadLogo(formData.logo_file);
-          await supabase
-            .from('client_accounts')
-            .update({ logo_image_url: logoUrl })
-            .eq('client_account_id', client.client_account_id);
+          await updateClientLogo(client.client_account_id, logoUrl);
         } catch (error) {
           console.error('Error uploading logo:', error);
           // Continue without logo if upload fails
@@ -87,31 +69,16 @@ export const clientService = {
 
       // Handle parent account associations
       if (formData.parent_account_ids?.length > 0) {
-        const parentAssociations = formData.parent_account_ids.map(parentId => ({
-          client_account_id: client.client_account_id,
-          parent_account_id: parentId,
-          created_by: session.session.user.id,
-          updated_by: session.session.user.id
-        }));
-
-        const { error: associationError } = await supabase
-          .from('client_parent_association')
-          .insert(parentAssociations);
-
-        if (associationError) throw associationError;
+        await updateParentAssociations(
+          client.client_account_id,
+          formData.parent_account_ids,
+          session.session.user.id
+        );
       }
 
       // Fetch complete client data
-      const { data: createdClient, error: fetchError } = await supabase
-        .from('client_list_view')
-        .select('*')
-        .eq('client_account_id', client.client_account_id)
-        .single();
-
-      if (fetchError) throw fetchError;
-      if (!createdClient) throw new Error('Failed to fetch created client');
-
-      return mapClientData(createdClient);
+      const updatedClient = await fetchUpdatedClient(client.client_account_id);
+      return mapClientData(updatedClient);
     } catch (error) {
       throw handleSupabaseError(error, 'Failed to create client');
     }
@@ -125,39 +92,13 @@ export const clientService = {
 
     try {
       // Update client record
-      const { data: client, error: updateError } = await supabase
-        .from('client_accounts')
-        .update({
-          friendly_name: formData.friendly_name,
-          registered_name: formData.registered_name,
-          account_type: formData.account_type,
-          industry_id: formData.industry_id,
-          entity_type: formData.entity_type,
-          gstin: formData.gstin,
-          tan: formData.tan,
-          icn: formData.icn,
-          linkedin_url: formData.linkedin_url,
-          website_url: formData.website_url,
-          country_id: formData.country_id,
-          state_id: formData.state_id,
-          city_id: formData.city_id,
-          updated_by: session.session.user.id
-        })
-        .eq('client_account_id', clientId)
-        .select()
-        .single();
-
-      if (updateError) throw updateError;
-      if (!client) throw new Error('Failed to update client record');
+      const client = await updateClientRecord(clientId, formData, session.session.user.id);
 
       // Handle logo update if provided
       if (formData.logo_file) {
         try {
           const logoUrl = await storageService.uploadLogo(formData.logo_file);
-          await supabase
-            .from('client_accounts')
-            .update({ logo_image_url: logoUrl })
-            .eq('client_account_id', clientId);
+          await updateClientLogo(clientId, logoUrl);
         } catch (error) {
           console.error('Error uploading logo:', error);
           // Continue without logo if upload fails
@@ -165,39 +106,24 @@ export const clientService = {
       }
 
       // Update parent account associations
-      await supabase
-        .from('client_parent_association')
-        .delete()
-        .eq('client_account_id', clientId);
-
-      if (formData.parent_account_ids?.length > 0) {
-        const parentAssociations = formData.parent_account_ids.map(parentId => ({
-          client_account_id: clientId,
-          parent_account_id: parentId,
-          created_by: session.session.user.id,
-          updated_by: session.session.user.id
-        }));
-
-        const { error: associationError } = await supabase
-          .from('client_parent_association')
-          .insert(parentAssociations);
-
-        if (associationError) throw associationError;
-      }
+      await updateParentAssociations(
+        clientId,
+        formData.parent_account_ids || [],
+        session.session.user.id
+      );
 
       // Fetch updated client data
-      const { data: updatedClient, error: fetchError } = await supabase
-        .from('client_list_view')
-        .select('*')
-        .eq('client_account_id', clientId)
-        .single();
-
-      if (fetchError) throw fetchError;
-      if (!updatedClient) throw new Error('Failed to fetch updated client');
-
+      const updatedClient = await fetchUpdatedClient(clientId);
       return mapClientData(updatedClient);
     } catch (error) {
       throw handleSupabaseError(error, 'Failed to update client');
     }
+  },
+
+  async fetchClientForEdit(clientId: string) {
+    return fetchClientForEdit(clientId);
   }
 };
+
+// Export the type for better type checking
+export type ClientService = typeof clientService;

@@ -13,6 +13,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div>
         <label htmlFor={props.id} className="block text-sm font-medium text-gray-700">
           {label}
+          {props.required && <span className="text-error ml-1">*</span>}
         </label>
         <div className="mt-1 relative">
           {Icon && (
@@ -26,15 +27,24 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className={`
               appearance-none block w-full 
               ${Icon ? 'pl-10' : 'pl-3'} 
-              pr-3 py-2 border border-gray-300 rounded-md 
-              shadow-sm focus:outline-none focus:ring-primary 
-              focus:border-primary 
-              ${error ? 'border-red-300' : ''}
+              pr-3 py-2 
+              border border-gray-300 
+              rounded-md 
+              shadow-sm 
+              placeholder-gray-400
+              transition-colors
+              duration-200
+              focus:outline-none
+              ${error 
+                ? 'border-error focus:ring-2 focus:ring-error/20 focus:border-error' 
+                : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'
+              }
+              ${props.disabled ? 'bg-gray-50 cursor-not-allowed' : 'bg-white'}
               ${className}
             `}
           />
         </div>
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-1 text-sm text-error">{error}</p>}
       </div>
     );
   }

@@ -33,8 +33,14 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
         disabled={disabled}
         className={`
           mt-1 block w-full rounded-md shadow-sm
+          border border-gray-300
           ${disabled ? 'bg-gray-50' : 'bg-white'}
-          border-gray-300 focus:border-primary focus:ring-primary
+          transition-colors duration-200
+          focus:outline-none
+          ${error 
+            ? 'border-error focus:ring-2 focus:ring-error/20 focus:border-error' 
+            : 'focus:ring-2 focus:ring-primary/20 focus:border-primary'
+          }
           disabled:cursor-not-allowed disabled:opacity-50
         `}
       >
@@ -48,7 +54,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
           </option>
         ))}
       </select>
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-error">{error}</p>}
     </div>
   );
 };
