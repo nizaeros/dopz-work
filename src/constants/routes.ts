@@ -10,9 +10,9 @@ export const ROUTES = {
     ADMIN: '/internal/admin'
   },
   CLIENT: {
-    DASHBOARD: '/client/:clientId',
-    DOCUMENTS: '/client/documents',
-    SUPPORT: '/client/support',
-    ACTIVITY: '/client/activity'
+    DASHBOARD: '/client/:clientId/dashboard',
+    DOCUMENTS: '/client/:clientId/documents',
+    SUPPORT: '/client/:clientId/support',
+    ACTIVITY: '/client/:clientId/activity'
   }
 } as const;

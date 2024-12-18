@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Copy, ExternalLink, Edit2, MapPin, Briefcase, Building, Calendar, Users } from 'lucide-react';
 import { formatDate } from '../../../../utils/date';
 import { useClipboard } from '../../../../hooks/useClipboard';
@@ -13,10 +13,16 @@ interface ClientCardProps {
 
 export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit }) => {
   const { copyToClipboard } = useClipboard();
+  const navigate = useNavigate();
 
   const handleEdit = (e: React.MouseEvent) => {
     e.preventDefault();
     onEdit(client);
+  };
+
+  const handleDashboardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(`/client/${client.id}/dashboard`);
   };
 
   const getParentAccountColor = (code: string) => {
@@ -101,8 +107,9 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit }) => {
                 <Edit2 className="h-5 w-5" />
               </button>
               <button 
+                onClick={handleDashboardClick}
                 className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
-                title="View details"
+                title="Go to dashboard"
               >
                 <ExternalLink className="h-5 w-5" />
               </button>

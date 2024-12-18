@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { supabase } from './lib/supabase';
 import { Header } from './components/header/Header';
 import { InternalDashboard } from './pages/InternalDashboard';
-import { ClientDashboard } from './pages/ClientDashboard';
+import { ClientDashboard } from './pages/client-dashboard/ClientDashboard';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { ClientManagementPage } from './pages/clients/ClientManagementPage';
@@ -88,16 +88,8 @@ export default function App() {
               <Route path="clients/*" element={<ClientManagementPage />} />
             </Route>
             
-            {/* Client Routes */}
-            <Route
-              path={ROUTES.CLIENT.DASHBOARD}
-              element={
-                <>
-                  <Header clientName="Demo Client" />
-                  <ClientDashboard clientName="Demo Client" />
-                </>
-              }
-            />
+            {/* Client Dashboard Routes */}
+            <Route path="/client/:clientId/*" element={<ClientDashboard />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
