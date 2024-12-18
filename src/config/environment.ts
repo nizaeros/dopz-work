@@ -1,23 +1,26 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  VITE_SUPABASE_URL: z.string().url(),
-  VITE_SUPABASE_ANON_KEY: z.string().min(1),
-  VITE_APP_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  VITE_LOGO_URL: z.string().url().optional().default('/duru_logo.png'),
-  VITE_LOCATION_API_KEY: z.string().min(1)
+  VITE_SUPABASE_URL: z.string()
+    .url('Supabase URL must be a valid URL')
+    .startsWith('https://', 'Supabase URL must use HTTPS'),
+  VITE_SUPABASE_ANON_KEY: z.string()
+    .min(1, 'Supabase anonymous key is required'),
+  VITE_APP_ENV: z.enum(['development', 'production', 'test'])
+    .default('development'),
+  VITE_LOGO_URL: z.string()
+    .url('Logo URL must be a valid URL')
 });
 
 const validateEnv = () => {
-  const env = {
-    VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
-    VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
-    VITE_APP_ENV: import.meta.env.VITE_APP_ENV,
-    VITE_LOGO_URL: import.meta.env.VITE_LOGO_URL || '/duru_logo.png',
-    VITE_LOCATION_API_KEY: import.meta.env.VITE_LOCATION_API_KEY
-  };
-
   try {
+    const env = {
+      VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+      VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
+      VITE_APP_ENV: import.meta.env.VITE_APP_ENV,
+      VITE_LOGO_URL: import.meta.env.VITE_LOGO_URL,
+    };
+
     return envSchema.parse(env);
   } catch (error) {
     console.error('❌ Invalid environment configuration:', error);
@@ -37,5 +40,4 @@ export const config = {
   isDevelopment: env.VITE_APP_ENV === 'development',
   isTest: env.VITE_APP_ENV === 'test',
   logoUrl: env.VITE_LOGO_URL,
-  locationApiKey: env.VITE_LOCATION_API_KEY
 } as const;
