@@ -13,18 +13,12 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
             'supabase-vendor': ['@supabase/supabase-js'],
-            'ui-vendor': ['lucide-react'],
           },
         },
       },
-      chunkSizeWarningLimit: 1000,
     },
     optimizeDeps: {
-      include: ['@supabase/supabase-js', 'lucide-react'],
-    },
-    server: {
-      host: true,
-      port: 5173,
+      include: ['@supabase/supabase-js', 'lucide-react', 'react-dropzone'],
     },
   };
 });
