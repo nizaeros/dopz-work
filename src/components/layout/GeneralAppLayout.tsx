@@ -15,27 +15,25 @@ export const GeneralAppLayout: React.FC<GeneralAppLayoutProps> = ({
   menuItems,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const location = useLocation();
   const { user, loading } = useUser();
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
       <Sidebar
         isExpanded={isExpanded}
         onToggle={() => setIsExpanded(!isExpanded)}
         menuItems={menuItems}
+        currentPath={location.pathname}
       />
       
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Simplified Header */}
         <header className="bg-white border-b border-gray-200 h-14">
           <div className="h-full px-6 flex items-center justify-end">
             {!loading && user && <UserMenu user={user} />}
           </div>
         </header>
         
-        {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
           <div className="w-full">
             {children}

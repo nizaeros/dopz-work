@@ -6,13 +6,13 @@ import { ROUTES } from '../../constants/routes';
 interface LogoProps {
   className?: string;
   iconOnly?: boolean;
-  showCaption?: boolean;
+  showBrandName?: boolean;
 }
 
 export const Logo: React.FC<LogoProps> = ({ 
   className = '', 
   iconOnly = false,
-  showCaption = true
+  showBrandName = true
 }) => {
   const navigate = useNavigate();
 
@@ -31,12 +31,10 @@ export const Logo: React.FC<LogoProps> = ({
       <img
         src={config.logoUrl}
         alt="DOPZ"
-        className={`${iconOnly ? 'h-6 w-6' : 'h-8 w-auto'}`}
+        className="h-8 w-auto"
       />
-      {!iconOnly && showCaption && (
-        <span className="ml-3 text-lg font-semibold text-gray-800">
-          DOPZ
-        </span>
+      {!iconOnly && showBrandName && (
+        <span className="text-xl font-medium text-gray-800 ml-3">DOPZ</span>
       )}
     </div>
   );
