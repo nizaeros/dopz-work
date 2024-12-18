@@ -1,6 +1,8 @@
 import { PostgrestError } from '@supabase/supabase-js';
 
 export function handleSupabaseError(error: unknown, defaultMessage: string): Error {
+  console.error('Original error:', error);
+
   if (error instanceof Error) {
     return error;
   }

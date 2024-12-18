@@ -9,6 +9,7 @@ interface LocationSelectProps {
   options: Array<{ id: string; name: string }>;
   error?: string;
   disabled?: boolean;
+  value?: string;
 }
 
 export const LocationSelect: React.FC<LocationSelectProps> = ({
@@ -17,7 +18,8 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
   register,
   options,
   error,
-  disabled = false
+  disabled = false,
+  value
 }) => {
   return (
     <div>
@@ -27,6 +29,7 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
       </label>
       <select
         {...register(name)}
+        value={value || ""}
         disabled={disabled}
         className={`
           mt-1 block w-full rounded-md shadow-sm
@@ -37,7 +40,10 @@ export const LocationSelect: React.FC<LocationSelectProps> = ({
       >
         <option value="">Select {label}</option>
         {options.map((option) => (
-          <option key={`${name}-${option.id}`} value={option.id}>
+          <option 
+            key={`${name}-${option.id}`} 
+            value={option.id}
+          >
             {option.name}
           </option>
         ))}

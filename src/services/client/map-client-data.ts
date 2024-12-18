@@ -1,5 +1,4 @@
 import type { Client } from '../../types/client';
-import { AccountType } from '../../types/enums';
 
 export function mapClientData(data: any): Client {
   return {
@@ -17,6 +16,6 @@ export function mapClientData(data: any): Client {
     city: data.city_name || '',
     state: data.state_name || '',
     country: data.country_name || '',
-    accountType: data.account_type || AccountType.Business,
+    accountType: data.account_type || 'Standard',
   };
 }

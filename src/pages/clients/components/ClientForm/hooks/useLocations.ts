@@ -1,21 +1,12 @@
 import { useState, useEffect } from 'react';
-import { UseFormWatch } from 'react-hook-form';
 import { supabase } from '../../../../../lib/supabase';
-import type { ClientFormData } from '../../../../../types/forms';
+import type { LocationOption } from '../../../../../types/forms';
 
-interface LocationOption {
-  id: string;
-  name: string;
-}
-
-export function useLocations(watch: UseFormWatch<ClientFormData>) {
+export function useLocations(countryId: string | null | undefined, stateId: string | null | undefined) {
   const [countries, setCountries] = useState<LocationOption[]>([]);
   const [states, setStates] = useState<LocationOption[]>([]);
   const [cities, setCities] = useState<LocationOption[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const countryId = watch('country_id');
-  const stateId = watch('state_id');
+  const [loading, setLoading] = useState(true);
 
   // Fetch countries
   useEffect(() => {

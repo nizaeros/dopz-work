@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, Download, Plus, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { Tabs } from '../../../../components/ui/Tabs';
 import { ClientFormModal } from '../ClientForm/ClientFormModal';
-import { clientService } from '../../../../services/client.service';
+import { clientService } from '../../../../services/client';
 import type { ClientFilter } from '../../../../hooks/useClients';
 import type { ClientFormData } from '../../../../types/forms';
 
@@ -25,8 +26,9 @@ export const ClientListToolbar: React.FC<ClientListToolbarProps> = ({
   searchQuery,
   counts,
 }) => {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const tabs = [
     { id: 'active', label: 'Active', count: counts.active, icon: 'check' },
@@ -39,15 +41,22 @@ export const ClientListToolbar: React.FC<ClientListToolbarProps> = ({
   };
 
   const handleSubmit = async (data: ClientFormData) => {
+    const toastId = toast.loading('Creating client...');
+    setIsSubmitting(true);
+
     try {
       setError(null);
       await clientService.createClient(data);
+      toast.success('Client created successfully', { id: toastId });
       setIsModalOpen(false);
-      // Optionally trigger a refresh of the client list
-      window.location.reload(); // For now, we'll do a simple reload
+      window.location.reload();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create client');
-      throw err; // Re-throw to be handled by the form's error handling
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create client';
+      setError(errorMessage);
+      toast.error(errorMessage, { id: toastId });
+      throw err;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -104,6 +113,7 @@ export const ClientListToolbar: React.FC<ClientListToolbarProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
       />
     </>
   );

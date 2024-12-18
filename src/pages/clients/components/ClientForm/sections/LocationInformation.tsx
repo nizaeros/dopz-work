@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { UseFormRegister, UseFormWatch, UseFormSetValue, FieldErrors } from 'react-hook-form';
+import { MapPin } from 'lucide-react';
 import { LocationSelect } from '../../../../../components/ui/LocationSelect';
 import { useLocations } from '../hooks/useLocations';
 import type { ClientFormData } from '../../../../../types/forms';
@@ -9,33 +10,58 @@ interface LocationInformationProps {
   watch: UseFormWatch<ClientFormData>;
   setValue: UseFormSetValue<ClientFormData>;
   errors: FieldErrors<ClientFormData>;
+  initialData?: Partial<ClientFormData>;
 }
 
 export const LocationInformation: React.FC<LocationInformationProps> = ({
   register,
   watch,
   setValue,
-  errors
+  errors,
+  initialData
 }) => {
-  const { countries, states, cities, loading } = useLocations(watch);
+  const countryId = watch('country_id');
+  const stateId = watch('state_id');
+  const cityId = watch('city_id');
+  
+  const { countries, states, cities, loading } = useLocations(countryId, stateId);
+
+  // Set initial values when component mounts
+  useEffect(() => {
+    if (initialData) {
+      if (initialData.country_id) {
+        setValue('country_id', initialData.country_id, { shouldValidate: true });
+      }
+      if (initialData.state_id) {
+        setValue('state_id', initialData.state_id, { shouldValidate: true });
+      }
+      if (initialData.city_id) {
+        setValue('city_id', initialData.city_id, { shouldValidate: true });
+      }
+    }
+  }, [initialData, setValue]);
 
   // Clear dependent fields when parent selection changes
-  React.useEffect(() => {
-    if (!watch('country_id')) {
+  useEffect(() => {
+    if (!countryId) {
       setValue('state_id', '');
       setValue('city_id', '');
     }
-  }, [watch('country_id'), setValue]);
+  }, [countryId, setValue]);
 
-  React.useEffect(() => {
-    if (!watch('state_id')) {
+  useEffect(() => {
+    if (!stateId) {
       setValue('city_id', '');
     }
-  }, [watch('state_id'), setValue]);
+  }, [stateId, setValue]);
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-medium text-gray-900">Location Information</h3>
+      <div className="flex items-center gap-2 mb-6">
+        <MapPin className="h-5 w-5 text-primary" />
+        <h3 className="text-lg font-semibold text-gray-900">Location Information</h3>
+      </div>
+
       <div className="grid grid-cols-1 gap-6">
         <LocationSelect
           label="Country"
@@ -44,6 +70,7 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
           options={countries}
           error={errors.country_id?.message}
           disabled={loading}
+          value={countryId}
         />
 
         <LocationSelect
@@ -52,7 +79,8 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
           register={register}
           options={states}
           error={errors.state_id?.message}
-          disabled={!watch('country_id') || loading}
+          disabled={!countryId || loading}
+          value={stateId}
         />
 
         <LocationSelect
@@ -61,7 +89,8 @@ export const LocationInformation: React.FC<LocationInformationProps> = ({
           register={register}
           options={cities}
           error={errors.city_id?.message}
-          disabled={!watch('state_id') || loading}
+          disabled={!stateId || loading}
+          value={cityId}
         />
       </div>
     </div>

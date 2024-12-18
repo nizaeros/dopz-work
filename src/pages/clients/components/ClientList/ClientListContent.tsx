@@ -13,6 +13,7 @@ interface ClientListContentProps {
   filters: FilterOptions;
   onFilterChange: (key: keyof FilterOptions, value: string | null) => void;
   onClearFilters: () => void;
+  onEditClient: (client: Client) => void;
 }
 
 export const ClientListContent: React.FC<ClientListContentProps> = ({
@@ -22,6 +23,7 @@ export const ClientListContent: React.FC<ClientListContentProps> = ({
   filters,
   onFilterChange,
   onClearFilters,
+  onEditClient,
 }) => {
   if (loading) {
     return (
@@ -46,7 +48,11 @@ export const ClientListContent: React.FC<ClientListContentProps> = ({
         ) : (
           <div className="space-y-2">
             {clients.map((client) => (
-              <ClientCard key={client.id} client={client} />
+              <ClientCard 
+                key={client.id} 
+                client={client} 
+                onEdit={onEditClient}
+              />
             ))}
           </div>
         )}

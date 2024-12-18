@@ -30,6 +30,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
     formState: { errors },
     watch,
     setValue,
+    control
   } = useForm<ClientFormData>({
     resolver: zodResolver(clientFormSchema),
     defaultValues: initialData,
@@ -39,47 +40,75 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   const { parentAccounts } = useParentAccounts();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <BasicInformation
-        register={register}
-        errors={errors}
-        industries={industries}
-      />
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Basic Info & Company Logo */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <BasicInformation
+              register={register}
+              watch={watch}
+              control={control}
+              errors={errors}
+              industries={industries}
+              initialData={initialData}
+            />
+          </div>
 
-      <RegistrationDetails
-        register={register}
-        errors={errors}
-      />
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <RegistrationDetails
+              register={register}
+              errors={errors}
+            />
+          </div>
 
-      <LocationInformation
-        register={register}
-        errors={errors}
-        watch={watch}
-        setValue={setValue}
-      />
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <OnlinePresence
+              register={register}
+              errors={errors}
+            />
+          </div>
+        </div>
 
-      <OnlinePresence
-        register={register}
-        errors={errors}
-      />
+        {/* Right Column - Logo & Location */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <CompanyLogo
+              watch={watch}
+              setValue={setValue}
+              error={errors.logo_file?.message}
+            />
+          </div>
 
-      <ParentAccounts
-        register={register}
-        errors={errors}
-        parentAccounts={parentAccounts}
-      />
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <LocationInformation
+              register={register}
+              errors={errors}
+              watch={watch}
+              setValue={setValue}
+              initialData={initialData}
+            />
+          </div>
 
-      <CompanyLogo
-        watch={watch}
-        setValue={setValue}
-        error={errors.logo_file?.message}
-      />
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <ParentAccounts
+              register={register}
+              setValue={setValue}
+              errors={errors}
+              parentAccounts={parentAccounts}
+              initialData={initialData}
+            />
+          </div>
+        </div>
+      </div>
 
-      <div className="flex justify-end space-x-4">
+      {/* Submit Button */}
+      <div className="mt-8 flex justify-end">
         <Button
           type="submit"
           loading={isSubmitting}
           disabled={isSubmitting}
+          className="px-8"
         >
           {initialData ? 'Update Client' : 'Create Client'}
         </Button>

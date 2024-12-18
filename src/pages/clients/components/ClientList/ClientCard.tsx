@@ -1,16 +1,23 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Copy, ExternalLink, Edit2, MapPin, Briefcase, Building, Calendar, Users } from 'lucide-react';
 import { formatDate } from '../../../../utils/date';
-import type { Client } from '../../../../types/client';
 import { useClipboard } from '../../../../hooks/useClipboard';
 import { ClientDetailItem } from './ClientDetailItem';
+import type { Client } from '../../../../types/client';
 
 interface ClientCardProps {
   client: Client;
+  onEdit: (client: Client) => void;
 }
 
-export const ClientCard: React.FC<ClientCardProps> = ({ client }) => {
+export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit }) => {
   const { copyToClipboard } = useClipboard();
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onEdit(client);
+  };
 
   const getParentAccountColor = (code: string) => {
     const colors = {
@@ -87,6 +94,7 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client }) => {
             {/* Action Buttons */}
             <div className="flex gap-2 flex-shrink-0">
               <button 
+                onClick={handleEdit}
                 className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-50 rounded-md transition-colors"
                 title="Edit client"
               >

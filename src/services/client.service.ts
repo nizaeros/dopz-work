@@ -27,7 +27,7 @@ export const clientService = {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw new Error(`Failed to fetch clients: ${error.message}`);
+      if (error) throw error;
       if (!data) return [];
 
       return data.map(this.mapClientData);
@@ -37,17 +37,17 @@ export const clientService = {
     }
   },
 
-  async createClient(formData: ClientFormData): Promise<Client> {
+  async updateClient(clientId: string, formData: ClientFormData): Promise<Client> {
     const { data: session } = await supabase.auth.getSession();
     if (!session?.session?.user) {
-      throw new Error('User must be authenticated to create a client');
+      throw new Error('User must be authenticated to update client');
     }
 
     try {
-      // Start a Supabase transaction
-      const { data: client, error: clientError } = await supabase
+      // Update client record
+      const { data: client, error: updateError } = await supabase
         .from('client_accounts')
-        .insert([{
+        .update({
           friendly_name: formData.friendly_name,
           registered_name: formData.registered_name,
           account_type: formData.account_type,
@@ -61,36 +61,41 @@ export const clientService = {
           country_id: formData.country_id,
           state_id: formData.state_id,
           city_id: formData.city_id,
-          created_by: session.session.user.id,
           updated_by: session.session.user.id
-        }])
+        })
+        .eq('client_account_id', clientId)
         .select()
         .single();
 
-      if (clientError) throw clientError;
+      if (updateError) throw updateError;
 
-      // Upload logo if provided
-      let logoUrl = null;
-      if (formData.logo_file && client) {
+      // Handle logo update if provided
+      if (formData.logo_file) {
         try {
-          logoUrl = await storageService.uploadLogo(formData.logo_file);
-          // Update client with logo URL
-          const { error: updateError } = await supabase
+          const logoUrl = await storageService.uploadLogo(formData.logo_file);
+          const { error: logoError } = await supabase
             .from('client_accounts')
             .update({ logo_image_url: logoUrl })
-            .eq('client_account_id', client.client_account_id);
+            .eq('client_account_id', clientId);
 
-          if (updateError) throw updateError;
-        } catch (uploadError) {
-          console.error('Error uploading logo:', uploadError);
+          if (logoError) throw logoError;
+        } catch (error) {
+          console.error('Error uploading logo:', error);
           // Continue without logo if upload fails
         }
       }
 
-      // Associate parent accounts if any
-      if (formData.parent_account_ids?.length > 0 && client) {
+      // Update parent account associations
+      if (formData.parent_account_ids?.length > 0) {
+        // First remove existing associations
+        await supabase
+          .from('client_parent_association')
+          .delete()
+          .eq('client_account_id', clientId);
+
+        // Then add new associations
         const parentAssociations = formData.parent_account_ids.map(parentId => ({
-          client_account_id: client.client_account_id,
+          client_account_id: clientId,
           parent_account_id: parentId,
           created_by: session.session.user.id,
           updated_by: session.session.user.id
@@ -103,18 +108,18 @@ export const clientService = {
         if (associationError) throw associationError;
       }
 
-      // Fetch the created client with all relations
-      const { data: createdClient, error: fetchError } = await supabase
+      // Fetch updated client data
+      const { data: updatedClient, error: fetchError } = await supabase
         .from('client_list_view')
         .select('*')
-        .eq('client_account_id', client.client_account_id)
+        .eq('client_account_id', clientId)
         .single();
 
       if (fetchError) throw fetchError;
 
-      return this.mapClientData(createdClient);
+      return this.mapClientData(updatedClient);
     } catch (error) {
-      console.error('Error creating client:', error);
+      console.error('Error updating client:', error);
       throw error;
     }
   },
@@ -124,7 +129,7 @@ export const clientService = {
       id: data.client_account_id,
       name: data.friendly_name || 'Unnamed Client',
       registeredName: data.registered_name || '',
-      type: data.entity_type || 'business',
+      type: data.entity_type?.toLowerCase() || 'business',
       industry: data.industry_name || 'N/A',
       createdAt: data.created_at,
       isActive: data.is_active ?? true,

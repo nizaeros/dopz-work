@@ -7,39 +7,24 @@ interface ClientFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: ClientFormData) => Promise<void>;
-  initialData?: Partial<ClientFormData>;
+  isSubmitting?: boolean;
 }
 
 export const ClientFormModal: React.FC<ClientFormModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  initialData,
+  isSubmitting = false,
 }) => {
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const handleSubmit = async (data: ClientFormData) => {
-    try {
-      setIsSubmitting(true);
-      await onSubmit(data);
-      onClose();
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={initialData ? 'Edit Client' : 'Add New Client'}
+      title="Add New Client"
       size="xl"
     >
       <ClientForm
-        onSubmit={handleSubmit}
-        initialData={initialData}
+        onSubmit={onSubmit}
         isSubmitting={isSubmitting}
       />
     </Modal>
