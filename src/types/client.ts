@@ -2,6 +2,7 @@ export interface Client {
   id: string;
   name: string;
   registeredName: string;
+  slug: string;
   type: 'business' | 'government' | 'individual';
   industry: string;
   createdAt: string;

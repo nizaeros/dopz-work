@@ -28,8 +28,13 @@ export const useClientData = () => {
           return;
         }
 
+        const { data, error: clientError } = await clientService.getClientById(clientId);
+        
+        if (clientError) throw clientError;
+        if (!data) throw new Error('Client not found');
+
         // Check client access permission
-        if (!checkPermission.canAccessClientDashboard(user, clientId)) {
+        if (!checkPermission.canAccessClientDashboard(user, data.id)) {
           if (user?.role_type_name === 'external' && user?.client_id) {
             // Redirect external users to their assigned client dashboard
             navigate(ROUTES.CLIENT.DASHBOARD.replace(':clientId', user.client_id));
@@ -38,13 +43,16 @@ export const useClientData = () => {
           }
           return;
         }
-
-        const { data, error: clientError } = await clientService.getClientById(clientId);
-        
-        if (clientError) throw clientError;
-        if (!data) throw new Error('Client not found');
         
         setClient(data);
+
+        // Update URL to use slug if accessed by ID
+        if (clientId !== data.slug) {
+          navigate(
+            window.location.pathname.replace(clientId, data.slug),
+            { replace: true }
+          );
+        }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch client data';
         console.error('Error fetching client data:', errorMessage);
