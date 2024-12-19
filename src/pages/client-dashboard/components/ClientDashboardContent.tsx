@@ -1,8 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ClientDashboardOverview } from './overview/ClientDashboardOverview';
-import { RoutineInput } from './input/RoutineInput';
-import { OnetimeInput } from './input/OnetimeInput';
+import { RoutineInputPage } from './routine/RoutineInputPage';
 
 export const ClientDashboardContent: React.FC = () => {
   return (
@@ -16,8 +15,7 @@ export const ClientDashboardContent: React.FC = () => {
       {/* Input routes */}
       <Route path="input">
         <Route index element={<Navigate to="routine" replace />} />
-        <Route path="routine" element={<RoutineInput />} />
-        <Route path="onetime" element={<OnetimeInput />} />
+        <Route path="routine" element={<RoutineInputPage />} />
       </Route>
     </Routes>
   );
