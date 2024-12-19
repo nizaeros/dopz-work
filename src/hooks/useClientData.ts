@@ -7,7 +7,7 @@ import { ROUTES } from '../constants/routes';
 import type { Client } from '../types/client';
 
 export const useClientData = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { clientId } = useParams<{ clientId: string }>();
   const { user, loading: userLoading } = useUser();
   const navigate = useNavigate();
   const [client, setClient] = useState<Client | null>(null);
@@ -16,7 +16,7 @@ export const useClientData = () => {
 
   useEffect(() => {
     const fetchClientData = async () => {
-      if (!slug || userLoading) return;
+      if (!clientId || userLoading) return;
 
       try {
         setLoading(true);
@@ -28,26 +28,21 @@ export const useClientData = () => {
           return;
         }
 
-        const { data, error: clientError } = await clientService.getClientBySlug(slug);
-        
-        if (clientError) throw clientError;
-        if (!data) throw new Error('Client not found');
-
-        // Check client access permission using the fetched client ID
-        if (!checkPermission.canAccessClientDashboard(user, data.id)) {
+        // Check client access permission
+        if (!checkPermission.canAccessClientDashboard(user, clientId)) {
           if (user?.role_type_name === 'external' && user?.client_id) {
-            // Get the slug for the user's assigned client
-            const { data: userClient } = await clientService.getClientById(user.client_id);
-            if (userClient?.slug) {
-              navigate(ROUTES.CLIENT.DASHBOARD.replace(':slug', userClient.slug));
-            } else {
-              throw new Error('Invalid client configuration');
-            }
+            // Redirect external users to their assigned client dashboard
+            navigate(ROUTES.CLIENT.DASHBOARD.replace(':clientId', user.client_id));
           } else {
             throw new Error('You do not have permission to access this client dashboard');
           }
           return;
         }
+
+        const { data, error: clientError } = await clientService.getClientById(clientId);
+        
+        if (clientError) throw clientError;
+        if (!data) throw new Error('Client not found');
         
         setClient(data);
       } catch (err) {
@@ -60,7 +55,7 @@ export const useClientData = () => {
     };
 
     fetchClientData();
-  }, [slug, user, userLoading, navigate]);
+  }, [clientId, user, userLoading, navigate]);
 
   return { client, loading: loading || userLoading, error };
 };

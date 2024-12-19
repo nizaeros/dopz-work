@@ -1,7 +1,6 @@
 export const ROUTES = {
   LOGIN: '/login',
   FORGOT_PASSWORD: '/forgot-password',
-  NOT_FOUND: '/404',
   INTERNAL: {
     DASHBOARD: '/internal/dashboard',
     CLIENTS: '/internal/clients',
@@ -11,9 +10,9 @@ export const ROUTES = {
     ADMIN: '/internal/admin'
   },
   CLIENT: {
-    DASHBOARD: '/client/:slug/dashboard', // Changed from :clientId to :slug
-    DOCUMENTS: '/client/:slug/documents',
-    SUPPORT: '/client/:slug/support',
-    ACTIVITY: '/client/:slug/activity'
+    DASHBOARD: '/client/:clientId/dashboard',
+    DOCUMENTS: '/client/:clientId/documents',
+    SUPPORT: '/client/:clientId/support',
+    ACTIVITY: '/client/:clientId/activity'
   }
 } as const;
