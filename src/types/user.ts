@@ -7,6 +7,8 @@ export interface UserProfile {
   email: string;
   primary_phone_country_code?: string;
   primary_phone_number?: string;
+  role_type_name: 'internal' | 'external';
+  client_id?: string;
 }
 
 export interface UserRole {

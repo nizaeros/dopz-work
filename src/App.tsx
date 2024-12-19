@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { supabase } from './lib/supabase';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Header } from './components/header/Header';
 import { InternalDashboard } from './pages/InternalDashboard';
 import { ClientDashboard } from './pages/client-dashboard/ClientDashboard';
@@ -51,18 +52,6 @@ export default function App() {
             background: '#363636',
             color: '#fff',
           },
-          success: {
-            iconTheme: {
-              primary: '#4ade80',
-              secondary: '#fff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
-            },
-          },
         }}
       />
       <Routes>
@@ -71,29 +60,36 @@ export default function App() {
         <Route path={ROUTES.LOGIN} element={!session ? <LoginPage /> : <Navigate to={ROUTES.INTERNAL.DASHBOARD} replace />} />
         <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
         
-        {/* Protected Routes */}
-        {session ? (
-          <>
-            {/* Internal Routes */}
-            <Route path="/internal">
-              <Route 
-                path="dashboard" 
-                element={
-                  <>
-                    <Header />
-                    <InternalDashboard />
-                  </>
-                } 
-              />
-              <Route path="clients/*" element={<ClientManagementPage />} />
-            </Route>
-            
-            {/* Client Dashboard Routes */}
-            <Route path="/client/:clientId/*" element={<ClientDashboard />} />
-          </>
-        ) : (
-          <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
-        )}
+        {/* Protected Internal Routes */}
+        <Route path="/internal">
+          <Route 
+            path="dashboard" 
+            element={
+              <ProtectedRoute allowedRoles={['internal']}>
+                <Header />
+                <InternalDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="clients/*" 
+            element={
+              <ProtectedRoute allowedRoles={['internal']}>
+                <ClientManagementPage />
+              </ProtectedRoute>
+            } 
+          />
+        </Route>
+        
+        {/* Protected Client Routes */}
+        <Route 
+          path="/client/:clientId/*" 
+          element={
+            <ProtectedRoute allowedRoles={['external', 'internal']}>
+              <ClientDashboard />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* 404 Route */}
         <Route path="*" element={<NotFoundPage />} />

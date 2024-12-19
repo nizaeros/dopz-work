@@ -1,19 +1,30 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useUser } from './useUser';
 import { clientService } from '../services/client';
+import { checkPermission } from '../utils/permission-checker';
 import type { Client } from '../types/client';
 
 export type ClientFilter = 'active' | 'inactive' | 'all';
 
 export const useClients = (filter: ClientFilter = 'all') => {
+  const { user, loading: userLoading } = useUser();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchClients = async () => {
+      if (userLoading) return;
+
       try {
         setLoading(true);
         setError(null);
+
+        // Check if user has permission to access clients
+        if (!checkPermission.canManageClients(user)) {
+          throw new Error('Unauthorized: Only internal users can access client list');
+        }
+
         const data = await clientService.getClients();
         setClients(data);
       } catch (err) {
@@ -26,7 +37,7 @@ export const useClients = (filter: ClientFilter = 'all') => {
     };
 
     fetchClients();
-  }, []);
+  }, [user, userLoading]);
 
   const filteredClients = useMemo(() => {
     if (!clients.length) return [];
@@ -50,7 +61,7 @@ export const useClients = (filter: ClientFilter = 'all') => {
   return { 
     clients: filteredClients, 
     counts,
-    loading, 
+    loading: loading || userLoading, 
     error 
   };
 };
