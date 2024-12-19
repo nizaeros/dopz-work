@@ -1,20 +1,28 @@
 import React, { useState } from 'react';
 import { Search, Plus, X } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import { RoutineInputTable } from './components/RoutineInputTable';
 import { RoutineInputViewer } from './components/RoutineInputViewer/RoutineInputViewer';
+import { AddInputModal } from './components/AddInputModal';
 import { useRoutineInputs } from './hooks/useRoutineInputs';
+import { useClient } from '../../hooks/useClient';
 import { Tabs } from '../../../../components/ui/Tabs';
-import type { RoutineInput, RoutineInputStatus } from './types';
+import { routineInputService } from '../../../../services/routine-input/routine-input.service';
+import { Button } from '../../../../components/ui/Button';
+import toast from 'react-hot-toast';
+import type { RoutineInput } from '../../../../types/routine-input';
+import type { RoutineInputFormData } from './components/AddInputModal/types';
 
 export const RoutineInputPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<RoutineInputStatus | 'all'>('all');
+  const { clientId: clientSlug } = useParams<{ clientId: string }>();
+  const { client, loading: clientLoading } = useClient(clientSlug);
+  const [activeTab, setActiveTab] = useState<'all' | 'review' | 'suspense' | 'verified' | 'cancelled'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedInput, setSelectedInput] = useState<RoutineInput | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { inputs, loading } = useRoutineInputs({
-    status: activeTab,
-    search: searchQuery
-  });
+  const { inputs, loading, error, refetch } = useRoutineInputs(client?.id);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -32,29 +40,91 @@ export const RoutineInputPage: React.FC = () => {
     setSelectedInput(null);
   };
 
-  const handleNext = () => {
-    if (!selectedInput) return;
-    const currentIndex = inputs.findIndex(input => input.id === selectedInput.id);
-    if (currentIndex < inputs.length - 1) {
-      setSelectedInput(inputs[currentIndex + 1]);
+  const handleSubmit = async (data: RoutineInputFormData) => {
+    if (!client?.id) {
+      toast.error('Client ID not found');
+      return;
     }
-  };
 
-  const handlePrevious = () => {
-    if (!selectedInput) return;
-    const currentIndex = inputs.findIndex(input => input.id === selectedInput.id);
-    if (currentIndex > 0) {
-      setSelectedInput(inputs[currentIndex - 1]);
+    const toastId = toast.loading('Creating input...');
+    setIsSubmitting(true);
+
+    try {
+      await routineInputService.createRoutineInput({
+        clientId: client.id,
+        ...data
+      });
+
+      toast.success('Input created successfully', { id: toastId });
+      setIsAddModalOpen(false);
+      
+      // Refetch inputs after successful creation
+      if (refetch) {
+        await refetch();
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create input';
+      toast.error(errorMessage, { id: toastId });
+      console.error('Error creating input:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const tabs = [
     { id: 'all', label: 'All', count: inputs.length },
-    { id: 'Review', label: 'Review', count: inputs.filter(i => i.status === 'Review').length },
-    { id: 'Suspense', label: 'Suspense', count: inputs.filter(i => i.status === 'Suspense').length },
-    { id: 'Verified', label: 'Verified', count: inputs.filter(i => i.status === 'Verified').length },
-    { id: 'Cancelled', label: 'Cancelled', count: inputs.filter(i => i.status === 'Cancelled').length }
+    { 
+      id: 'review', 
+      label: 'Review', 
+      count: inputs.filter(i => i.input_status === 'review').length,
+      icon: 'clock'
+    },
+    { 
+      id: 'suspense', 
+      label: 'Suspense', 
+      count: inputs.filter(i => i.input_status === 'suspense').length,
+      icon: 'alert'
+    },
+    { 
+      id: 'verified', 
+      label: 'Verified', 
+      count: inputs.filter(i => i.input_status === 'verified').length,
+      icon: 'check'
+    },
+    { 
+      id: 'cancelled', 
+      label: 'Cancelled', 
+      count: inputs.filter(i => i.input_status === 'cancelled').length,
+      icon: 'x'
+    }
   ];
+
+  const filteredInputs = inputs.filter(input => {
+    // Filter by status
+    if (activeTab !== 'all' && input.input_status !== activeTab) {
+      return false;
+    }
+
+    // Filter by search query
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        input.input_code.toLowerCase().includes(searchLower) ||
+        input.party_name?.toLowerCase().includes(searchLower) ||
+        input.notes?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return true;
+  });
+
+  if (loading || clientLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -87,34 +157,38 @@ export const RoutineInputPage: React.FC = () => {
             </button>
           )}
         </div>
-        <button className="flex items-center px-3 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary-dark">
+        <Button onClick={() => setIsAddModalOpen(true)}>
           <Plus className="h-4 w-4 mr-1" />
           Add New
-        </button>
+        </Button>
       </div>
 
       {/* Tabs */}
       <Tabs
         tabs={tabs}
         activeTab={activeTab}
-        onTabChange={(id) => setActiveTab(id as RoutineInputStatus | 'all')}
+        onTabChange={(id) => setActiveTab(id as typeof activeTab)}
       />
 
       {/* Table */}
       <RoutineInputTable
-        inputs={inputs}
+        inputs={filteredInputs}
         onView={handleView}
       />
 
-      {/* Viewer Modal */}
+      {/* Add Input Modal */}
+      <AddInputModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+      />
+
+      {/* Input Viewer Modal */}
       {selectedInput && (
         <RoutineInputViewer
           input={selectedInput}
           onClose={handleCloseViewer}
-          onNext={handleNext}
-          onPrevious={handlePrevious}
-          hasNext={inputs.findIndex(i => i.id === selectedInput.id) < inputs.length - 1}
-          hasPrevious={inputs.findIndex(i => i.id === selectedInput.id) > 0}
         />
       )}
     </div>

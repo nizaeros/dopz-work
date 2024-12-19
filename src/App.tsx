@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { supabase } from './lib/supabase';
+import { verifySchema } from './utils/schema-check';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Header } from './components/header/Header';
 import { InternalDashboard } from './pages/InternalDashboard';
@@ -13,11 +14,16 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import { ROUTES } from './constants/routes';
 
-export default function App() {
-  const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+export function App() {
+  const [session, setSession] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
+    // Verify schema access
+    verifySchema().then(isAccessible => {
+      console.log('Schema accessible:', isAccessible);
+    });
+
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -97,3 +103,5 @@ export default function App() {
     </Router>
   );
 }
+
+export default App;

@@ -2,11 +2,21 @@ import React, { useState } from 'react';
 import { ZoomIn, ZoomOut, Download } from 'lucide-react';
 
 interface DocumentPreviewProps {
-  url: string;
+  url?: string;
 }
 
 export const DocumentPreview: React.FC<DocumentPreviewProps> = ({ url }) => {
   const [zoom, setZoom] = useState(100);
+
+  // If no URL provided, show placeholder
+  if (!url) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-50">
+        <p className="text-gray-500">No document selected</p>
+      </div>
+    );
+  }
+
   const fileType = url.split('.').pop()?.toLowerCase();
 
   const handleZoomIn = () => {
@@ -39,21 +49,12 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({ url }) => {
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top left' }}
           />
         );
-      case 'xlsx':
-      case 'xls':
-      case 'doc':
-      case 'docx':
+      default:
         return (
           <div className="flex items-center justify-center h-full bg-gray-50">
             <p className="text-gray-500">
               Preview not available. Please download to view.
             </p>
-          </div>
-        );
-      default:
-        return (
-          <div className="flex items-center justify-center h-full bg-gray-50">
-            <p className="text-gray-500">Unsupported file format</p>
           </div>
         );
     }

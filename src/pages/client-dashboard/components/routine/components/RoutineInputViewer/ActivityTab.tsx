@@ -34,7 +34,10 @@ export const ActivityTab: React.FC<ActivityTabProps> = ({ inputId }) => {
           <div key={activity.id} className="flex gap-4">
             <div className="flex-shrink-0">
               <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
-                {activity.icon}
+                {/* Render the icon as a JSX element */}
+                {React.createElement(activity.icon, {
+                  className: "h-5 w-5 text-gray-500"
+                })}
               </div>
             </div>
             <div>

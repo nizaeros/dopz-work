@@ -9,24 +9,24 @@ interface Document {
 }
 
 interface DocumentListProps {
-  documents: Document[];
-  selectedUrl: string;
+  documents?: Document[];
+  selectedUrl?: string;
   onSelect: (url: string) => void;
   onDelete?: (id: string) => void;
-  onUpload?: (file: File) => void;
+  onUpload?: (files: FileList) => void;
 }
 
 export const DocumentList: React.FC<DocumentListProps> = ({
-  documents,
+  documents = [],
   selectedUrl,
   onSelect,
   onDelete,
   onUpload
 }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && onUpload) {
-      onUpload(file);
+    const files = e.target.files;
+    if (files && files.length > 0 && onUpload) {
+      onUpload(files);
     }
   };
 
@@ -42,37 +42,42 @@ export const DocumentList: React.FC<DocumentListProps> = ({
             className="hidden"
             onChange={handleFileChange}
             accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+            multiple // Enable multiple file selection
           />
         </label>
       </div>
 
-      <div className="space-y-2">
-        {documents.map((doc) => (
-          <div
-            key={doc.id}
-            onClick={() => onSelect(doc.url)}
-            className={`flex items-center justify-between p-2 rounded-md cursor-pointer ${
-              selectedUrl === doc.url ? 'bg-primary/5 text-primary' : 'hover:bg-gray-50'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <File className="h-4 w-4" />
-              <span className="text-sm truncate">{doc.name}</span>
+      {documents.length === 0 ? (
+        <p className="text-sm text-gray-500 text-center py-4">No documents available</p>
+      ) : (
+        <div className="space-y-2">
+          {documents.map((doc) => (
+            <div
+              key={doc.id}
+              onClick={() => onSelect(doc.url)}
+              className={`flex items-center justify-between p-2 rounded-md cursor-pointer ${
+                selectedUrl === doc.url ? 'bg-primary/5 text-primary' : 'hover:bg-gray-50'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <File className="h-4 w-4" />
+                <span className="text-sm truncate">{doc.name}</span>
+              </div>
+              {onDelete && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(doc.id);
+                  }}
+                  className="p-1 text-gray-400 hover:text-red-500"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
-            {onDelete && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(doc.id);
-                }}
-                className="p-1 text-gray-400 hover:text-red-500"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
